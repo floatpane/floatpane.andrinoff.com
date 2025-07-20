@@ -405,11 +405,17 @@ nav {
 
 /* Installation Section */
 .installation {
+  background: var(--bg-primary);
+  padding: 5rem 0;
+}
+
+.installation-windows {
   background: var(--bg-secondary);
   padding: 5rem 0;
 }
 
-.installation h2 {
+.installation h2,
+.installation-windows h2 {
   text-align: center;
   font-size: 2.5rem;
   margin-bottom: 3rem;
@@ -531,4 +537,9 @@ footer {
 
 .header-copy-btn:active {
   transform: translateY(-50%) scale(0.95);
+}
+@media screen and (max-width: 600px) {
+  .nav-links {
+    display: none;
+  }
 }

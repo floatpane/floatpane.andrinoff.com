@@ -13,42 +13,80 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // Platform selector functionality
+  const platformButtons = document.querySelectorAll(".platform-btn");
+  const platformContents = document.querySelectorAll(".platform-content");
+
+  platformButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const platform = button.dataset.platform;
+
+      // Update button states
+      platformButtons.forEach((btn) => btn.classList.remove("active"));
+      button.classList.add("active");
+
+      // Update content visibility
+      platformContents.forEach((content) => {
+        if (content.dataset.platform === platform) {
+          content.style.display = "block";
+        } else {
+          content.style.display = "none";
+        }
+      });
+    });
+  });
+
   // --- Fetch Latest Release and Stars from GitHub ---
-  const repo = "floatpane/floatpane";
+  const macOSRepo = "floatpane/floatpane";
+  const windowsRepo = "floatpane/floatpane-windows";
   const versionSpan = document.getElementById("latest-version");
   const installLink = document.getElementById("install-link");
+  const windowsInstallLink = document.getElementById("windows-install-link");
   const starsSpan = document.getElementById("github-stars");
 
   async function fetchRepoInfo() {
     try {
-      // Fetch release info
-      const releaseResponse = await fetch(
-        `https://api.github.com/repos/${repo}/releases/latest`
+      // Fetch macOS release info
+      const macOSReleaseResponse = await fetch(
+        `https://api.github.com/repos/${macOSRepo}/releases/latest`
       );
-      if (!releaseResponse.ok) {
-        throw new Error(`HTTP error! status: ${releaseResponse.status}`);
-      }
-      const releaseData = await releaseResponse.json();
-      const latestVersion = releaseData.tag_name;
-      const releaseUrl = releaseData.html_url;
+      if (macOSReleaseResponse.ok) {
+        const releaseData = await macOSReleaseResponse.json();
+        const latestVersion = releaseData.tag_name;
+        const releaseUrl = releaseData.html_url;
 
-      if (versionSpan) {
-        versionSpan.textContent = latestVersion;
-      }
-      if (installLink) {
-        installLink.href = releaseUrl;
+        if (versionSpan) {
+          versionSpan.textContent = latestVersion;
+        }
+        if (installLink) {
+          installLink.href = releaseUrl;
+        }
       }
 
-      // Fetch repo info for stars
-      const repoResponse = await fetch(`https://api.github.com/repos/${repo}`);
-      if (!repoResponse.ok) {
-        throw new Error(`HTTP error! status: ${repoResponse.status}`);
+      // Fetch Windows release info
+      try {
+        const windowsReleaseResponse = await fetch(
+          `https://api.github.com/repos/${windowsRepo}/releases/latest`
+        );
+        if (windowsReleaseResponse.ok && windowsInstallLink) {
+          const windowsReleaseData = await windowsReleaseResponse.json();
+          windowsInstallLink.href = windowsReleaseData.html_url;
+        }
+      } catch (error) {
+        console.log("Windows repo not found or accessible:", error);
       }
-      const repoData = await repoResponse.json();
-      const starCount = repoData.stargazers_count;
 
-      if (starsSpan) {
-        starsSpan.textContent = starCount;
+      // Fetch repo info for stars (using macOS repo)
+      const repoResponse = await fetch(
+        `https://api.github.com/repos/${macOSRepo}`
+      );
+      if (repoResponse.ok) {
+        const repoData = await repoResponse.json();
+        const starCount = repoData.stargazers_count;
+
+        if (starsSpan) {
+          starsSpan.textContent = starCount;
+        }
       }
     } catch (error) {
       console.error("Could not fetch GitHub data:", error);
